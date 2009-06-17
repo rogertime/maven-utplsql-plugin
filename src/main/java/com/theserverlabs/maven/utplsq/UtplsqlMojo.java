@@ -66,17 +66,24 @@ public class UtplsqlMojo extends AbstractMojo {
     private String username;
 
     /**
-     * The username to connect to the database.
+     * The password to connect to the database.
      * 
      * @parameter
      */
     private String password;
 
     /**
-     * The name of the package to test. You must specify either this or the
-     * testSuiteName parameter.
+     * The type of test method to execute. Can be either test or run. Defaults to test. 
      * 
-     * @parameter
+     * @parameter default-value="test"
+     */
+    private String testMethod;
+    
+    /**
+     * The name of the package to test. You must specify either this or the
+     * suiteName parameter.
+     * 
+     * @parameter 
      */
     private String packageName;
 
@@ -87,6 +94,14 @@ public class UtplsqlMojo extends AbstractMojo {
      */
     private String testSuiteName;
 
+    /**
+     * The setup method to use. set to TRUE to execute setup and teardown for each
+     * procedure. FALSE to execute for each package. Default is FALSE.
+     * 
+     * @parameter default-value="FALSE"
+     */
+    private String setupMethod;
+    
     /**
      * Location to which we will write the report file. Defaults to the Maven
      * /target directory of the project.
@@ -146,6 +161,7 @@ public class UtplsqlMojo extends AbstractMojo {
     private void runPackage(Connection conn) throws SQLException, IOException,
             SplitterException {
         CallableStatement stmt = null;
+        String package_stmt = buildPackageStatment();
         try {
             getLog().info("Running UTPLSQL tests for package " + packageName);
             
@@ -153,7 +169,7 @@ public class UtplsqlMojo extends AbstractMojo {
             // of the package that we want to execute and expecting the run_id
             // to be passed as an out parameter. We use the run_id to later 
             // look up the results of the test. 
-            stmt = conn.prepareCall(PACKAGE_STMT);
+            stmt = conn.prepareCall(package_stmt);
             stmt.setString(1, packageName);
             stmt.registerOutParameter(2, Types.NUMERIC);
             stmt.execute();
@@ -186,14 +202,16 @@ public class UtplsqlMojo extends AbstractMojo {
     private void runTestSuite(Connection conn) throws SQLException,
             IOException, SplitterException {
         CallableStatement stmt = null;
+        String suite_stmt = buildSuiteStatement();
         try {
-            getLog().info("Running UTPLSQL test suite " + testSuiteName);
+      	   getLog().info("Running UTPLSQL test suite " + testSuiteName);
             
             // execute the test suite, binding two output parameters - the 
             // run_id that corresponds to the test suite execution and the 
             // number of test packages in the test suite. We'll use these
             // values later to construct a report for each package. 
-            stmt = conn.prepareCall(SUITE_STMT);
+            suite_stmt = buildSuiteStatement();
+            stmt = conn.prepareCall(suite_stmt);
             stmt.setString(1, testSuiteName);
             stmt.setString(2, testSuiteName);
             stmt.registerOutParameter(3, Types.NUMERIC);
@@ -210,7 +228,6 @@ public class UtplsqlMojo extends AbstractMojo {
             File surefireDir = createAndCleanOutputDir();
             for (int i = 1; i <= packageCount; i++) {
                 int pkgRunId = runId - i;
-                getLog().info("Creating test report for run " + pkgRunId);
                 buildSurefirePackageReport(conn, surefireDir, pkgRunId,
                         testSuiteName + "-" + pkgRunId);
             }
@@ -327,17 +344,51 @@ public class UtplsqlMojo extends AbstractMojo {
 
     }
 
-    private static final String PACKAGE_STMT = "begin "
-            + "  utplsql.test (?, recompile_in => FALSE); "
-            + "  ? := utplsql2.runnum; " + "end; ";
+    private String buildPackageStatment() {
+       StringBuffer sb = new StringBuffer();
+       sb.append("begin ");
+       sb.append("utplsql.");
+       sb.append(testMethod);
+       sb.append("(?, ");
+       if ("test".equals(testMethod)) {
+          sb.append("recompile_in => FALSE, ");
+      }
+//     this hack because JDBC is forbidden from pushing a Boolean to PL/SQL
+       sb.append("per_method_setup_in => ");
+       sb.append(setupMethod);
+       sb.append("); ");
+//       end hack
+       sb.append(" ? := utplsql2.runnum; ");
+       sb.append("end; ");
+       return sb.toString();
+    }
 
-    private static final String SUITE_STMT = "declare  "
-            + "  v_suite_pkg_count PLS_INTEGER; " + "begin   "
-            + "  utplsql.testsuite (?, recompile_in => FALSE);  "
-            + "  select count(*) suite_package_count "
-            + "  into v_suite_pkg_count " + "  from ut_suite s, ut_package p  "
-            + "  where s.id = p.suite_id  " + "  and s.name = Upper(?); "
-            + "  ? := utplsql2.runnum;  " + "  ? := v_suite_pkg_count;  "
-            + "end; ";
+    private String buildSuiteStatement() {
+       StringBuffer sb = new StringBuffer();
+       sb.append("declare ");
+       sb.append("v_suite_pkg_count PLS_INTEGER; ");
+       sb.append("begin ");
+       sb.append("utplsql.");
+       sb.append(testMethod);
+       sb.append("suite");
+       sb.append("(?, ");
+       if ("test".equals(testMethod)) {
+          sb.append("recompile_in => FALSE, ");
+      }
+//       this hack because JDBC is forbidden from pushing a Boolean to PL/SQL
+       sb.append("per_method_setup_in => ");
+       sb.append(setupMethod);
+       sb.append("); ");
+//       end hack
+       sb.append("  select count(*) suite_package_count ");
+       sb.append("  into v_suite_pkg_count ");
+       sb.append("  from ut_suite s, ut_package p  ");
+       sb.append("  where s.id = p.suite_id  ");
+       sb.append("  and s.name = Upper(?); ");
+       sb.append("  ? := utplsql2.runnum;  ");
+       sb.append("  ? := v_suite_pkg_count;  ");
+       sb.append("end; ");
+       return sb.toString();
+    }
 
 }
