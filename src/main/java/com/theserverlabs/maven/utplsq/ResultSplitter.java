@@ -37,27 +37,38 @@ public class ResultSplitter {
      * @return a DescContainer object that contains the description info 
      * @throws SplitterException if the description wasn't in the expected format. 
      */
-	public static DescContainer split(String description) throws SplitterException {
+    public static DescContainer split(String description) throws SplitterException {
 		DescContainer dc = new DescContainer();
 		String[] descComponents = description.split(":");
-		String [] nameComponents = descComponents[0].split("\\.");
-		if (descComponents.length < 2 || nameComponents.length < 2) {
-			throw new SplitterException("utPLSQL results not in the expected format!" +
-					" Please check the utPLSQL outcome table.");
+
+		// first part is the package and function name or suite
+		String[] nameComponents = descComponents[0].split("\\.");
+
+		// FIXME if the utPLSQL itself fails to run the suite then the component will be called .
+		switch (nameComponents.length) {
+		case 0:
+		case 1:
+			// single value suggest suite itself
+			dc.setProcedureName(descComponents[0]);
+			dc.setTestName("init");
+			break;
+		case 2:
+			dc.setProcedureName(nameComponents[0]);
+			dc.setTestName(nameComponents[1]);
+			break;
+		default:
+			throw new SplitterException("utPLSQL results not in the expected format! Please check the utPLSQL outcome table.");
 		}
-		dc.setProcedureName(nameComponents[0]);
-		dc.setTestName(nameComponents[1]);
-		String desc = "";
-		for (int i=1; i<descComponents.length; i++) {
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = 1; i < descComponents.length; i++) {
 			if (i > 1) {
-				desc = desc + ":" + descComponents[i];
-			} else {
-				desc = desc + descComponents[i];
+				sb.append(':');
 			}
+			sb.append(descComponents[i]);
 		}
-		dc.setTestDescription(desc);
+		dc.setTestDescription(sb.toString());
 		return dc;
 	}
-	
-	
+
 }
