@@ -24,7 +24,9 @@ public class DescContainer {
 
 	private String procedureName;
 	private String testName;
-	private String testDescription;
+	private String type;
+	private String results;
+	private String duration = "0";
 	
 	public String getProcedureName() {
 		return procedureName;
@@ -38,12 +40,29 @@ public class DescContainer {
 	public void setTestName(String testName) {
 		this.testName = testName;
 	}
-	public String getTestDescription() {
-		return testDescription;
-	}
-	public void setTestDescription(String testDescription) {
-		this.testDescription = testDescription;
-	}
-	
+    public String getType()
+    {
+        return type;
+    }
+    public void setType(String type)
+    {
+        this.type = type;
+    }
+    public String getResults()
+    {
+        return results;
+    }
+    public void setResults(String results)
+    {
+        this.results = results;
+    }
+    public String getDuration()
+    {
+        return duration;
+    }
+    public void setDuration(String duration)
+    {
+        this.duration = duration;
+    }
 	
 }
