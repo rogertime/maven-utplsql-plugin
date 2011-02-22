@@ -35,10 +35,20 @@ public class ResultSplitter {
     private static final String ASSERT_TYPE_UNKNOWN = "Assert Type Unknown";
     
     /**
-     * Take a description and split it into its various constituent elements. The 
+     * Takes a description and splits it into its various constituent elements. The 
      * description should be in the following format (without the square brackets):
-     * [procedureName].[testName]:[testDescription] 
      * 
+     * [packagename.procedureName]:[Assert type] [test description]:[results/debug 1]
+     * 
+     * Unfortunately utplsql output does not always conform to this format 
+     * making precise interpretation impossible!
+     * 
+     * Other formats that occur are 
+     * [packagename.procedureName]:[Assert type] [test description]+[results]
+     * [packagename.procedureName]:[Assert type] [test description]: [debug/results 1] 
+     * [packagename.procedureName]:[test description]
+     * [packagename.procedureName].[Unable to run testName]:[error description]
+     * [.]:[Unable to run] [packagename.procedureName]:[error description]
      *  
      * @param description the description input 
      * @return a DescContainer object that contains the description info 
@@ -53,7 +63,6 @@ public class ResultSplitter {
 		// first part is the package and function name or suite
 		String[] nameComponents = descComponents[0].split("\\.");
 
-		// FIXME if the utPLSQL itself fails to run the suite then the component will be called .
 		switch (nameComponents.length) {
 		case 0:
 		case 1:
@@ -102,16 +111,15 @@ public class ResultSplitter {
 		return dc;
 	}
     /**
-     * Merge remaining description together
+     * Merge Description's together starting with given index
      * 
      * @param desc
-     * @return
+     * @return a merged description array
      */
     private static String fetchDesc(String desc[],int startIndex)
     {
         StringBuilder sb = new StringBuilder();
         
-        // We have already processed desc[1] and [2]
         for (int i = startIndex; i < desc.length; i++) {
     
             sb.append(desc[i]);
@@ -123,7 +131,7 @@ public class ResultSplitter {
      * Sets the Assert Test type  
      * 
      * @param typeStr and string containing the Assert Test
-     * @return typeStr if not found or post Assert Test if found
+     * @return typeStr with Assert Type removed or the typeStr String if not found
      */
     private static String extractAndSetAssertTest(DescContainer dc,String typeStr)
     {                
@@ -142,6 +150,14 @@ public class ResultSplitter {
         }
 
     }
+    /**
+     * Separates Assert Test description from attached results and setTestName
+     * in dc.
+     * 
+     * @param dc the unscrambled results object
+     * @param testStr typically the 2nd colon string from UTR_OUTCOME table 
+     * @return the results that were appended to testStr or null 
+     */
     private static String extractAndSetTestName(DescContainer dc,String testStr)
     {                
         int resultPos = testStr.indexOf(RESULT_BLOCK_1);
@@ -152,7 +168,7 @@ public class ResultSplitter {
         {
             testName = testStr.substring(0,resultPos);
         }
-        else // Unable to identify a results section of maybe it the EQ form?
+        else // Unable to identify a results section, maybe its the EQ form?
         {
             int expectedPos = testStr.indexOf(RESULT_BLOCK_2);
             
@@ -173,18 +189,18 @@ public class ResultSplitter {
 
     }
     /**
-     * Selects the correct result set
+     * Determines the results/debug output of the utPLSQL test
      *  
      * @param testStr if none null this forms the results
      * @param desc the utPLSQL desc split by :
      * @param startIndex the start merge index for desc
-     * @return
+     * @return the results/debug output from an utPLSQL test
      */
     private static String getResults(String testStr,String desc[],int startIndex)
     {
         String resultsStr = testStr;
-        // Now lets place the debug output/outcome into Results section
         
+        // If the results were not appended to the test name they are in the remaining descriptions
         if (resultsStr == null)
         {
             resultsStr = fetchDesc(desc,startIndex);
@@ -193,5 +209,4 @@ public class ResultSplitter {
         return resultsStr;
     }
  
-
 }
