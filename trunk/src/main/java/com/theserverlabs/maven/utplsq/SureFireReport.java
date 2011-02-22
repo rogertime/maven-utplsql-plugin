@@ -8,7 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -61,6 +60,9 @@ public class SureFireReport
      *            the test run ID
      * @param suiteOrPackageName
      *            the suite or package name
+     * @param duration
+     *            time in msecs taken to run the suite/package
+     *            
      * @throws SQLException
      *             if there was a problem getting the report data from the database
      * @throws IOException
@@ -107,7 +109,7 @@ public class SureFireReport
         return testResult;
     }
     /**
-     * Converts test results into a Surefire test node
+     * Converts test results into a Surefire xml test tags
      * 
      * @param status
      * @param dc a decoded utplsql description
