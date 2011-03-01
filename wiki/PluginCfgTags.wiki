@@ -96,7 +96,7 @@ Type: Optional, Permitted Values: full directory path, Default Value: ${project.
 
 =Fail On No Tests Tag=
 
-In the case of a database package compilation error utPLSQL tests will fail to run and report 0 tests run. The default behavior is to raise an error to bring attention to this problem, if this is not required this value shoudl be set to false (present since v1.2)
+In the case of a database package compilation error utPLSQL will fail and report 0 tests run. The default behavior is to raise an error to highlight this potential problem, if this is not required this value should be set to false (functionality introduced in v1.2).
 {{{
    <failOnNoTests>TRUE</failOnNoTests;>
 }}}
