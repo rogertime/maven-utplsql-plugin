@@ -25,7 +25,7 @@ Type: Mandatory, Permitted Values: url text, Default Value: NONE
 
 The username used to connect to the database.
 {{{
-   <username>Capt Sensible</username>
+   <username>CaptSensible</username>
 }}}
 Type: Mandatory, Permitted Values: username text, Default Value: NONE
 
@@ -33,7 +33,7 @@ Type: Mandatory, Permitted Values: username text, Default Value: NONE
 
 The password to connect to the database.
 {{{
-   <password>Fanclub</password>
+   <password>FanClub</password>
 }}}
 Type: Mandatory, Permitted Values: password text, Default Value: NONE
 
@@ -41,7 +41,7 @@ Type: Mandatory, Permitted Values: password text, Default Value: NONE
 
 This is the name of the package to test (not the test package), this value has been superseded in v1.3 by the package tag.
 {{{
-   <packageName>mytestpackage</packageName>
+   <packageName>MyPackageToBeTested</packageName>
 }}}
 NB/ testSuiteName, packageName and packages are mutually exclusive.
 
