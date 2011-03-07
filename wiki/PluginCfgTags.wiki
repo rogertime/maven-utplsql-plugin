@@ -101,3 +101,13 @@ In the case of a database package compilation error utPLSQL will fail and report
    <failOnNoTests>TRUE</failOnNoTests;>
 }}}
 Type: Optional, Permitted Values: TRUE|FALSE, Default Value: TRUE
+
+=Write Failures To Console Tag=
+
+Since v1.1 failure messages have been output directly to the console, from v1.31 this is switched off by default but can be reactivated by using this tag.
+
+{{{
+   <writeFailuresToConsole>FALSE</writeFailuresToConsole>
+}}}
+
+Type: Optional, Permitted Values: TRUE|FALSE, Default Value: FALSE
