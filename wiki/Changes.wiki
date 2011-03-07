@@ -5,9 +5,9 @@
 
 ==Version 1.31==
 
-The failOnNoTests now functions on each package in the 'packages tag' rather than all.
+The 'failOnNoTests tag' now functions on each package in the 'packages tag' rather than all.
 
-The failure reports to the console are now swicthed off by default but can be activiated using the new 'writeFailuresToConsole tag'
+The failure reports to the console are now switched off by default but can be activated using the new 'writeFailuresToConsole tag'
  
 ==Version 1.3==
 
