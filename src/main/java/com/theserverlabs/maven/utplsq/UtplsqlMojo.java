@@ -117,12 +117,24 @@ public class UtplsqlMojo extends AbstractMojo
     private Boolean failOnNoTests;
 
     /**
+     * If errors occur the failure message can be written to the console, this was active by
+     * default in version before 1.31, its now switched off by default. 
+     * NB/ This information is always included in the surefire xml report.
+     * 
+     * @parameter expression=false
+     */
+    private Boolean writeFailuresToConsole;
+    
+    /**
      * Do the main work of the plugin here.
      */
     public void execute() throws MojoExecutionException, MojoFailureException
     {
         Connection conn = null;
 
+        final String TEST_PKG   = "utplsql:Testing package ";
+        final String TEST_SUITE = "utplsql:Testing suite  ";
+        
         try
         {
             getLog().debug("using JDBC driver : " + driver);
@@ -135,33 +147,44 @@ public class UtplsqlMojo extends AbstractMojo
             String testTitle = null, testName = null;
             UtplsqlRunner runner = new UtplsqlRunner(getSurefireDir(), getLog());
 
+            // Run testSuite
             if (!StringUtils.isEmpty(testSuiteName))
             {
                 testResults = runner.runTestSuite(conn,testSuiteName, testMethod, setupMethod);
                 testName = testSuiteName;
-                testTitle = "Running utplsql test suite  " + testName;
+                testTitle = TEST_SUITE + testName;
+
             }
+            // Run packageName
             else if (!StringUtils.isEmpty(packageName))
             {
                 testResults = runner.runPackage(conn, packageName, testMethod, setupMethod);
                 testName = packageName;
-                testTitle = "Running utplsql package " + testName;
+                testTitle = TEST_PKG + testName;
+
             }
-            else // Run packages
+            // Run packages
+            else 
             {
                 TestResults pkgTestResults;
                 
                 for (int index = 0; index < packages.length;index++)
                 {  
                     pkgTestResults = runner.runPackage(conn, packages[index], testMethod, setupMethod);
+                    
+                    // We need to check for 0 tests run on each package otherwise we may miss an error
+                    checkForNoTests(packages[index],pkgTestResults);
+                                        
                     testResults.append(pkgTestResults);
                     
                 }
+                
                 testName = mergePackageNames(packages);
-                testTitle = "Running utplsql package " + testName;
+                testTitle = TEST_PKG + testName;
+               
             }
-                  
-            reportAndJudge(testResults, testTitle, testName);
+                              
+            reportAndJudge(testResults, testTitle, testName);            
             
 
         } catch (ClassNotFoundException e)
@@ -208,10 +231,13 @@ public class UtplsqlMojo extends AbstractMojo
                         + "Successes: " + testResults.getSuccesses() + ", Failures: " + testResults.getFailures() + "\n\n" + "Results:\n"
                         + "Tests run: " + testResults.getTestsRun() + ", Failures: " + testResults.getFailures() + "\n");
 
-        for (Iterator i = testResults.getFailureDescriptions().iterator(); i.hasNext();)
+        if (writeFailuresToConsole.booleanValue())
         {
-            getLog().info("------------------------------------");
-            getLog().info((String) i.next());
+            for (Iterator i = testResults.getFailureDescriptions().iterator(); i.hasNext();)
+            {
+                getLog().info("------------------------------------");
+                getLog().info((String) i.next());
+            }
         }
 
         // Lets warn if any failure conditions occured
@@ -220,6 +246,23 @@ public class UtplsqlMojo extends AbstractMojo
             throw new MojoFailureException("utPLSQL tests failed");
         }
 
+        checkForNoTests(testName,testResults);
+        
+    }
+    /**
+     * Flags Potential Error In utPLSQL
+     * 
+     * @param testName name of the package being tested
+     * @param testsRun the number of tests run
+     * @throws MojoFailureException if no tests have been run.
+     */
+    protected void checkForNoTests(String testName,TestResults testResults) throws MojoFailureException
+    {
+        getLog().info(testName+
+                        ", failed="+testResults.getFailures()+
+                        ", passed=" + testResults.getSuccesses()+
+                        ", total="+testResults.getTestsRun());
+        
         if (testResults.getTestsRun() == 0 && failOnNoTests.booleanValue())
         {
             String noTestErrorMsg = "\n\n-------------------------\nutPLSQL Fail On No Tests"+
