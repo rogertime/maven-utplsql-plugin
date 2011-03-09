@@ -5,7 +5,7 @@
    <groupId>com.theserverlabs.maven.utplsql</groupId>
    <artifactId>maven-utplsql-plugin</artifactId>
    <packaging>maven-plugin</packaging>
-   <version>1.0-SNAPSHOT</version>
+   <version>1.31-SNAPSHOT</version>
    <name>maven-utplsql-plugin Maven Mojo</name>
    
    <dependencies>
