@@ -58,7 +58,7 @@ The following test pom features a number of env properties which are typically d
 				<executions>
 					<execution>
 						<id>install-plsql-test-packages</id>
-						<phase>process-sources</phase>
+						<phase>process-test-resources</phase>
 						<goals>
 							<goal>execute</goal>
 						</goals>
