@@ -33,13 +33,18 @@ After the plug-in has gathered the results the outcome of the tests are reported
 
 }}}
 
-A Surefire xml report is also generated and saved to the standard surefire subdirectory, for details concerning its contents please refer to the SurefireXMLOutput wiki. Report location:-
+A Surefire xml report is also generated and saved to the standard surefire subdirectory, for details concerning its contents please refer to the SurefireXMLOutput wiki. 
+
+Report Location
 
 {{{
  ./target/surefire-reports/utplsql-<package name>-report.xml
 }}}
 
-A site report can be run at a location further up the maven tree to generate a report similar to the sample site Surefire Report found at http://maven.apache.org/plugins/maven-site-plugin-3.0-beta-3/surefire-report.html
+A site report can be run at a location further up the maven tree to generate a report similar to the sample site Surefire Report found at 
+
+http://mojo.codehaus.org/cobertura-maven-plugin/surefire-report.html<br/>
+http://maven.apache.org/plugins/maven-site-plugin-3.0-beta-3/surefire-report.html
 
 
 =Enhancing the plugin=
@@ -56,4 +61,4 @@ To compile, run the tests for and install the plugin in your local maven reposit
 mvn install
 }}}
 
-If you want to contribute back any fixes or enhancements, just get in touch with us.
+If you want to contribute any fixes or enhancements, just get in touch with us.
