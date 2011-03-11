@@ -20,8 +20,27 @@ The first step is to install utplsql v2.2 into the database, development can the
  
 =Results Reporting=
 
-Console output example, sure fire xml , maven site report 
-http://maven.apache.org/plugins/maven-site-plugin-3.0-beta-3/surefire-report.html
+After the plug-in has gathered the results the outcome of the tests are reported to the command line in a typical JUnit form :-
+{{{
+ ------------------------------------
+ TESTS
+ ------------------------------------
+ utplsql:Testing package pkgmigrationstate
+ Successes: 16, Failures: 0
+ 
+ Results:
+ Tests run: 16, Failures: 0
+
+}}}
+
+A Surefire xml report is also generated and saved to the standard surefire subdirectory, for details concerning its contents please refer to the SurefireXMLOutput wiki. Report location:-
+
+{{{
+ ./target/surefire-reports/utplsql-<package name>-report.xml
+}}}
+
+A site report can be run at a location further up the maven tree to generate a report similar to the sample site Surefire Report found at http://maven.apache.org/plugins/maven-site-plugin-3.0-beta-3/surefire-report.html
+
 
 =Enhancing the plugin=
 
@@ -38,5 +57,3 @@ mvn install
 }}}
 
 If you want to contribute back any fixes or enhancements, just get in touch with us.
-
-
