@@ -5,7 +5,7 @@
 
 To install the plugin download the latest jar and pom to a directory and run the following command line :-
 {{{
- mvn install:install-file -Dfile=maven-utplsql-plugin-1.31-SNAPSHOT.jar -DpomFile=maven-utplsql-plugin-1.31-SNAPSHOT-pom.xml
+ mvn install:install-file -Dfile=maven-utplsql-plugin-1.31.jar -DpomFile=maven-utplsql-plugin-1.31-pom.xml
 }}}
 
 = Sample utplsql Test POM =
