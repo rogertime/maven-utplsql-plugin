@@ -118,13 +118,20 @@ public class UtplsqlMojo extends AbstractMojo
 
     /**
      * If errors occur the failure message can be written to the console, this was active by
-     * default in version before 1.31, its now switched off by default. 
+     * default in version before 1.31, its now switched off by default.
      * NB/ This information is always included in the surefire xml report.
-     * 
+     *
      * @parameter expression=false
      */
     private Boolean writeFailuresToConsole;
-    
+
+    /**
+     * If test failes wheter to throw exception or print warnings
+     *
+     * @parameter expression=true
+     */
+    private Boolean failBuildOnTestFails;
+
     /**
      * Do the main work of the plugin here.
      */
@@ -241,7 +248,7 @@ public class UtplsqlMojo extends AbstractMojo
         }
 
         // Lets warn if any failure conditions occured
-        if (testResults.getFailures() > 0)
+        if (failBuildOnTestFails && testResults.getFailures() > 0)
         {
             throw new MojoFailureException("utPLSQL tests failed");
         }
